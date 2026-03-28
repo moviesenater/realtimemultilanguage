@@ -19,13 +19,13 @@ button{padding:10px;background:#667eea;color:white;border:none;width:95%}
 <input id="username" placeholder="Username">
 <input id="password" type="password" placeholder="Password">
 <button onclick="login()">Login</button>
-<p><a href="/signup">Signup</a></p>
+<p><a href="/signup.html">Signup</a></p>
 </div>
 
 <script>
 window.onload=function(){
     let token=localStorage.getItem("token")
-    if(token){window.location.href="/dashboard"}
+    if(token){window.location.href="/index.html"}
 }
 
 async function login(){
@@ -42,7 +42,7 @@ async function login(){
 
     if(res.ok && data.token){
         localStorage.setItem("token",data.token)
-        window.location.href="/dashboard"
+        window.location.href="/index.html"
     } else {
         alert(data.error)
     }

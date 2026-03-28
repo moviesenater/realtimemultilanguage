@@ -147,12 +147,12 @@ button {
 
 window.onload=function(){
     let token=localStorage.getItem("token")
-    if(!token){window.location.href="/"}
+    if(!token){window.location.href="/login.html"}
 }
 
 function logout(){
     localStorage.removeItem("token")
-    window.location.href="/"
+    window.location.href="/login.html"
 }
 
 function toggleTheme(){

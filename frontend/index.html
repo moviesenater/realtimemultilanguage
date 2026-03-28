@@ -163,7 +163,7 @@ async function translateText(){
     let text=document.getElementById("inputText").value
     let lang=document.getElementById("language").value
 
-    let res=await fetch('https://realtimemultilanguage-2.onrender.com/translate',{
+    let res=await fetch('https://realtimemultilanguage-3.onrender.com/translate',{
         method:'POST',
         headers:{
             'Content-Type':'application/json',
@@ -196,7 +196,7 @@ async function stopRecording(){
 
     let lang=document.getElementById("language").value
 
-    let res=await fetch('https://realtimemultilanguage-2.onrender.com/translate',{
+    let res=await fetch('https://realtimemultilanguage-3.onrender.com/translate',{
         method:'POST',
         headers:{
             'Content-Type':'application/json',
@@ -215,7 +215,7 @@ async function uploadImage(){
     let form=new FormData()
     form.append("image",file)
 
-    let res=await fetch('https://realtimemultilanguage-2.onrender.com/ocr',{
+    let res=await fetch('https://realtimemultilanguage-3.onrender.com/ocr',{
         method:'POST',
         headers:{
             'Authorization':localStorage.getItem("token")
@@ -232,7 +232,7 @@ async function translateOCR(){
     let text=document.getElementById("ocrResult").innerText
     let lang=document.getElementById("language").value
 
-    let res=await fetch('https://realtimemultilanguage-2.onrender.com/translate',{
+    let res=await fetch('https://realtimemultilanguage-3.onrender.com/translate',{
         method:'POST',
         headers:{
             'Content-Type':'application/json',

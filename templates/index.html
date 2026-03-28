@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Translator</title>
+
+<style>
+:root {
+    --bg: linear-gradient(135deg,#667eea,#764ba2);
+    --card: white;
+    --text: black;
+    --box: #f4f4f4;
+    --btn: #667eea;
+}
+
+.dark {
+    --bg: linear-gradient(135deg,#1e1e2f,#121212);
+    --card: #1f1f1f;
+    --text: white;
+    --box: #2c2c2c;
+    --btn: #444;
+}
+
+body {
+    background: var(--bg);
+    font-family: sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text);
+}
+
+.container {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 10px;
+    width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+textarea, select {
+    width: 100%;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+button {
+    margin: 5px;
+    padding: 10px;
+    background: var(--btn);
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.output {
+    background: var(--box);
+    padding: 10px;
+    margin-top: 5px;
+    min-height: 40px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.section {
+    margin-top: 20px;
+}
+
+.topbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<div class="topbar">
+<h3>🌍 Translator</h3>
+<div>
+<button onclick="toggleTheme()">🌙</button>
+<button onclick="logout()">Logout</button>
+</div>
+</div>
+
+<textarea id="inputText" placeholder="Enter text"></textarea>
+
+<select id="language">
+<option value="en">English</option>
+<option value="hi">Hindi</option>
+<option value="te">Telugu</option>
+<option value="ta">Tamil</option>
+<option value="bn">Bengali</option>
+<option value="mr">Marathi</option>
+<option value="es">Spanish</option>
+<option value="fr">French</option>
+<option value="de">German</option>
+<option value="it">Italian</option>
+<option value="pt">Portuguese</option>
+<option value="ru">Russian</option>
+<option value="zh-CN">Chinese</option>
+<option value="ja">Japanese</option>
+<option value="ko">Korean</option>
+<option value="ar">Arabic</option>
+<option value="tr">Turkish</option>
+<option value="vi">Vietnamese</option>
+</select>
+
+<button onclick="translateText()">Translate</button>
+
+<div class="output" id="output"></div>
+
+<div class="section">
+<h4>🎤 Voice</h4>
+<button onclick="startRecording()">Start</button>
+<button onclick="stopRecording()">Stop</button>
+
+<div>Spoken</div>
+<div class="output" id="speechResult"></div>
+
+<div>Translated</div>
+<div class="output" id="speechTranslation"></div>
+</div>
+
+<div class="section">
+<h4>🖼️ OCR</h4>
+
+<input type="file" id="imageInput">
+<br>
+<button onclick="uploadImage()">Extract</button>
+<button onclick="translateOCR()">Translate OCR</button>
+
+<div>Extracted</div>
+<div class="output" id="ocrResult"></div>
+
+<div>Translated</div>
+<div class="output" id="ocrTranslation"></div>
+</div>
+
+</div>
+
+<script>
+
+window.onload=function(){
+    let token=localStorage.getItem("token")
+    if(!token){window.location.href="/"}
+}
+
+function logout(){
+    localStorage.removeItem("token")
+    window.location.href="/"
+}
+
+function toggleTheme(){
+    document.body.classList.toggle("dark")
+}
+
+async function translateText(){
+    let text=document.getElementById("inputText").value
+    let lang=document.getElementById("language").value
+
+    let res=await fetch('http://127.0.0.1:5001/translate',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'Authorization':localStorage.getItem("token")
+        },
+        body:JSON.stringify({text, target:lang})
+    })
+
+    let data=await res.json()
+    document.getElementById("output").innerText=data.translated_text || data.error
+}
+
+let recognition
+let finalText=""
+
+function startRecording(){
+    recognition=new(window.SpeechRecognition||window.webkitSpeechRecognition)()
+    recognition.lang="en-US"
+
+    recognition.onresult=e=>{
+        finalText=e.results[0][0].transcript
+        document.getElementById("speechResult").innerText=finalText
+    }
+
+    recognition.start()
+}
+
+async function stopRecording(){
+    recognition.stop()
+
+    let lang=document.getElementById("language").value
+
+    let res=await fetch('http://127.0.0.1:5001/translate',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'Authorization':localStorage.getItem("token")
+        },
+        body:JSON.stringify({text:finalText, target:lang})
+    })
+
+    let data=await res.json()
+    document.getElementById("speechTranslation").innerText=data.translated_text || data.error
+}
+
+async function uploadImage(){
+    let file=document.getElementById("imageInput").files[0]
+
+    let form=new FormData()
+    form.append("image",file)
+
+    let res=await fetch('http://127.0.0.1:5001/ocr',{
+        method:'POST',
+        headers:{
+            'Authorization':localStorage.getItem("token")
+        },
+        body:form
+    })
+
+    let data=await res.json()
+    document.getElementById("ocrResult").innerText=data.text || data.error
+    document.getElementById("ocrTranslation").innerText=""
+}
+
+async function translateOCR(){
+    let text=document.getElementById("ocrResult").innerText
+    let lang=document.getElementById("language").value
+
+    let res=await fetch('http://127.0.0.1:5001/translate',{
+        method:'POST',
+        headers:{
+            'Content-Type':'application/json',
+            'Authorization':localStorage.getItem("token")
+        },
+        body:JSON.stringify({text, target:lang})
+    })
+
+    let data=await res.json()
+    document.getElementById("ocrTranslation").innerText=data.translated_text || data.error
+}
+
+</script>
+
+</body>
+</html>

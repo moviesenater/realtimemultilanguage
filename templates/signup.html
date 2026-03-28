@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Signup</title>
+<style>
+body { background:#667eea; display:flex; justify-content:center; align-items:center; height:100vh; }
+.container { background:white; padding:30px; border-radius:10px; text-align:center; }
+input { margin:10px; padding:10px; width:200px; }
+button { padding:10px; background:#667eea; color:white; border:none; }
+</style>
+</head>
+
+<body>
+<div class="container">
+<h2>Signup</h2>
+
+<input id="username" placeholder="Username"><br>
+<input id="password" type="password" placeholder="Password"><br>
+
+<button onclick="signup()">Register</button>
+
+<p>Already have account? <a href="/">Login</a></p>
+</div>
+
+<script>
+async function signup(){
+    let username=document.getElementById("username").value;
+    let password=document.getElementById("password").value;
+
+    let res=await fetch('/register',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({username,password})
+    });
+
+    let data=await res.json();
+
+    if(data.message){
+        alert("Signup successful");
+        window.location.href="/";
+    } else {
+        alert(data.error);
+    }
+}
+</script>
+</body>
+</html>
